@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 import firebaseConfig from './Firebase/firebase.config';
 initializeApp(firebaseConfig);
@@ -37,7 +37,8 @@ function App() {
   const signInUser = (email, password) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        setSuccessMessage('Sign In successful.')
+        setSuccessMessage('Signed in successfully.')
+        setError('')
       })
       .catch((error) => {
         setError(`Your entered username & password doesn't match`)
@@ -47,14 +48,31 @@ function App() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setSuccessMessage('Registration successful.')
+        setError('');
+        verifyEmail();
       })
       .catch((error) => {
-        setError(`Your password must be 6 character long`)
+        setError(`${error.message}`)
+        setSuccessMessage('')
       });
   }
   const toggleLogin = e => {
     setIsLogin(e.target.checked)
   }
+
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser).then(() => {
+      setSuccessMessage(`Check your mail / spam box for verification.`)
+    });
+  }
+
+  const handleResetPassword = (event) => {
+    sendPasswordResetEmail(auth, email).then(result => {
+      setSuccessMessage(`Check your mail / spam box for verification.`)
+      setError('');
+    })
+  }
+
   return (
     <div className="row">
       <div className="col-md-6 m-auto">
@@ -70,11 +88,12 @@ function App() {
             <input onBlur={handlePasswordChange} type="password" className="form-control" id="exampleInputPassword1" required />
           </div>
           <h6 className="text-danger">{error}</h6>
-          <div class="mb-2 form-check">
+          <div className="mb-2 form-check">
             <input onChange={toggleLogin} type="checkbox" className="form-check-input" id="exampleCheck1" />
             <label className="form-check-label" htmlFor="exampleCheck1">Already have an account?</label>
           </div>
-          <button type="submit" className="btn btn-primary">{isLogin ? "Sign In" : "Register"}</button>
+          <button type="submit" className="btn btn-primary ">{isLogin ? "Sign In" : "Register"}</button>
+          {email.length > 0 && <button onClick={handleResetPassword} className="btn btn-outline-warning">Reset password</button>}
           <h6 className="text-success mt-2">{successMessage}</h6>
         </form>
       </div>
