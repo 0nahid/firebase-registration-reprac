@@ -1,16 +1,23 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from 'react';
 import firebaseConfig from './Firebase/firebase.config';
 initializeApp(firebaseConfig);
+
 const auth = getAuth();
 
 function App() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLogin, setIsLogin] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+
+  const handleNameChange = (e) => {
+    setName(e.target.value)
+  }
+
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   }
@@ -39,6 +46,7 @@ function App() {
       .then((userCredential) => {
         setSuccessMessage('Signed in successfully.')
         setError('')
+        console.log(userCredential.user);
       })
       .catch((error) => {
         setError(`Your entered username & password doesn't match`)
@@ -50,6 +58,7 @@ function App() {
         setSuccessMessage('Registration successful.')
         setError('');
         verifyEmail();
+        setUserName();
       })
       .catch((error) => {
         setError(`${error.message}`)
@@ -72,20 +81,30 @@ function App() {
       setError('');
     })
   }
+  const setUserName = () => {
+    updateProfile(auth.currentUser, { displayName: name })
+      .then(res => { })
+  }
+
+
 
   return (
     <div className="row">
       <div className="col-md-6 m-auto">
-        <h1>Please {isLogin ? "Sign In" : "Register"} Here.</h1>
         <form onSubmit={handleRegistration}>
+          <h1>Please {isLogin ? "Sign In" : "Register"} Here.</h1>
+          {!isLogin && <div className="mb-3">
+            <label htmlFor="name" className="form-label" >Name</label>
+            <input onBlur={handleNameChange} type="text" className="form-control" placeholder="Enter your name" required />
+          </div>}
           <div className="mb-3">
             <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
-            <input onBlur={handleEmailChange} type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required />
+            <input onBlur={handleEmailChange} type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter your email address" required />
             <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
           </div>
           <div className="mb-3">
             <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-            <input onBlur={handlePasswordChange} type="password" className="form-control" id="exampleInputPassword1" required />
+            <input onBlur={handlePasswordChange} type="password" className="form-control" id="exampleInputPassword1" placeholder="Enter your password" required />
           </div>
           <h6 className="text-danger">{error}</h6>
           <div className="mb-2 form-check">
@@ -95,6 +114,7 @@ function App() {
           <button type="submit" className="btn btn-primary ">{isLogin ? "Sign In" : "Register"}</button>
           {email.length > 0 && <button onClick={handleResetPassword} className="btn btn-outline-warning">Reset password</button>}
           <h6 className="text-success mt-2">{successMessage}</h6>
+
         </form>
       </div>
     </div>
