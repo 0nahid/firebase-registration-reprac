@@ -1,11 +1,14 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, FacebookAuthProvider, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, FacebookAuthProvider, getAuth, GithubAuthProvider, GoogleAuthProvider, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
 import { useState } from 'react';
 import firebaseConfig from './Firebase/firebase.config';
 initializeApp(firebaseConfig);
 
 const auth = getAuth();
 const facebookProvider = new FacebookAuthProvider();
+const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
+
 function App() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -82,18 +85,20 @@ function App() {
     })
   }
   const setUserName = () => {
-    updateProfile(auth.currentUser, { displayName: name })
-      .then(res => { })
+    updateProfile(auth.currentUser, { displayName: name }).then(res => { })
   }
 
   const handleFacebookSignIn = () => {
     signInWithPopup(auth, facebookProvider)
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      .then((result) => { console.log(result); }).catch((error) => { console.log(error); });
+  }
+
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, googleProvider).then((result) => { console.log(result); }).catch((error) => { console.log(error); })
+  }
+
+  const handleGithubSignIn = () => {
+    signInWithPopup(auth, githubProvider).then((result) => { console.log(result); }).catch((error) => { console.log(error); })
   }
 
   return (
@@ -124,7 +129,13 @@ function App() {
           <h6 className="text-success mt-2">{successMessage}</h6>
         </form>
         <div>
-          <button onClick={handleFacebookSignIn} className="btn btn-dark">Sign in with Facebook</button>
+          <button onClick={handleFacebookSignIn} className="btn btn-warning">Sign in with Facebook</button>
+        </div>
+        <div>
+          <button onClick={handleGoogleSignIn} className="btn btn-danger">Sign In with Google</button>
+        </div>
+        <div>
+          <button onClick={handleGithubSignIn} className="btn btn-dark">Sign In with Github</button>
         </div>
       </div>
     </div>
