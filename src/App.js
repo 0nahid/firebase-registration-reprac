@@ -1,11 +1,11 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, FacebookAuthProvider, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
 import { useState } from 'react';
 import firebaseConfig from './Firebase/firebase.config';
 initializeApp(firebaseConfig);
 
 const auth = getAuth();
-
+const facebookProvider = new FacebookAuthProvider();
 function App() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -86,7 +86,15 @@ function App() {
       .then(res => { })
   }
 
-
+  const handleFacebookSignIn = () => {
+    signInWithPopup(auth, facebookProvider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <div className="row">
@@ -114,8 +122,10 @@ function App() {
           <button type="submit" className="btn btn-primary ">{isLogin ? "Sign In" : "Register"}</button>
           {email.length > 0 && <button onClick={handleResetPassword} className="btn btn-outline-warning">Reset password</button>}
           <h6 className="text-success mt-2">{successMessage}</h6>
-
         </form>
+        <div>
+          <button onClick={handleFacebookSignIn} className="btn btn-dark">Sign in with Facebook</button>
+        </div>
       </div>
     </div>
   );
